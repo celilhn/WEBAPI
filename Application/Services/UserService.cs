@@ -13,6 +13,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Application.Models;
 
 namespace Application.Services
 {
@@ -26,15 +27,14 @@ namespace Application.Services
             this.mapper = mapper;
         }
 
-        public UserDto Authenticate(string mail, string password)
+        public Token Authenticate(string mail, string password)
         {
-            //User user = userRepository.GetUser(mail, AppUtilities.EncryptSHA256(password));
+            Token tokenn = null;
             User user = userRepository.GetUser(mail, password);
             if (user == null)
                 return null;
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            //var key = Encoding.ASCII.GetBytes(AppUtilities.GetConfigurationValue("JwtToken"));
             var key = Encoding.ASCII.GetBytes("34yujjhtrt78o905yt4wesdrgthyjukılo809787");
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -48,11 +48,10 @@ namespace Application.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
+            tokenn = new Token();
+            tokenn.token = tokenHandler.WriteToken(token); 
 
-            UserDto userDto = mapper.Map<UserDto>(user);
-            userDto.Token = tokenHandler.WriteToken(token);
-
-            return userDto;
+            return tokenn;
         }
 
         public UserDto GetUser(int userId)
@@ -64,19 +63,6 @@ namespace Application.Services
         public UserDto GetUser(string email, string password)
         {
             UserDto user = mapper.Map<UserDto>(userRepository.GetUser(email, password));
-            return user;
-        }
-
-        public UserDto saveUser(UserDto user)
-        {
-            if (user.Id > 0)
-            {
-                user = mapper.Map<UserDto>(userRepository.UpdateUser(mapper.Map<User>(user)));
-            }
-            else
-            {
-                user = mapper.Map<UserDto>(userRepository.AddUser(mapper.Map<User>(user)));
-            }
             return user;
         }
     }

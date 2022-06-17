@@ -30,7 +30,7 @@ namespace Application.Logging
 
         public void LogException(Exception exception)
         {
-            logger.Error(exception);
+            //logger.Error(exception);
         }
 
         public void LogInfo(string message)

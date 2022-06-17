@@ -22,20 +22,17 @@ namespace MobileApi.Controllers
         }
 
         [HttpPost]
+
         public JsonResult Authentication(string email, string password)
         {
             ProcessResults processResults = ProcessResults.Unknown;
-            UserDto user = null;
             Token tokenn = null;
             try
             {
-                user = userService.Authenticate("celilhnkadioglu@gmail.com", "2345");
-                //user = userService.saveUser(user);
-                tokenn = new Token();
-                tokenn.token = user.Token;
+                tokenn = userService.Authenticate(email, password);
                 processResults = ProcessResults.Success;
                 HttpContext.Response.HttpContext.Items.Add("StatusCode", (int)processResults);
-                if (user == null)
+                if (tokenn == null)
                 {
                     HttpContext.Response.HttpContext.Items.Add("Message", "Bu kullanıcı'ya ait veri bulunamamıştır.");
                 }
@@ -47,32 +44,29 @@ namespace MobileApi.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                throw;
             }
 
             if (processResults != ProcessResults.Unknown)
             {
-                //return Ok(tokenn);
-                return new JsonResult(tokenn.token);
+                return new JsonResult(tokenn);
             }
             else
             {
                 HttpContext.Response.HttpContext.Items.Add("StatusCode", (int)processResults);
                 HttpContext.Response.HttpContext.Items.Add("Message", "İşlem yapılırken hata oluştu");
-                //return StatusCode((int)HttpStatusCode.InternalServerError);
-                return new JsonResult(tokenn);
+                return new JsonResult(HttpStatusCode.InternalServerError);
             }
         }
 
         [HttpPost]
         [ApiAuthorize]
-        public IActionResult Login(string email, string password)
+        public JsonResult Login(string email, string password)
         {
             ProcessResults processResults = ProcessResults.Unknown;
             UserDto user = null;
             try
             {
-                user = userService.GetUser("celilhnkadioglu@gmail.com", "2345");
+                user = userService.GetUser(email, password);
                 processResults = ProcessResults.Success;
                 if (user == null)
                 {
@@ -93,13 +87,15 @@ namespace MobileApi.Controllers
 
             if (processResults != ProcessResults.Unknown)
             {
-                return Ok(user);
+                //return Ok(user);
+                return new JsonResult(user);
             }
             else
             {
                 HttpContext.Response.HttpContext.Items.Add("StatusCode", (int)processResults);
                 HttpContext.Response.HttpContext.Items.Add("Message", "İşlem yapılırken hata oluştu");
-                return StatusCode((int)HttpStatusCode.InternalServerError);
+                //return StatusCode((int)HttpStatusCode.InternalServerError);
+                return new JsonResult(HttpStatusCode.InternalServerError);
             }
         }
 

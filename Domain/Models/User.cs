@@ -10,8 +10,5 @@ namespace Domain.Models
         public string Email { get; set; }
         [Column(TypeName = "varchar(200)")]
         public string Password { get; set; }
-
-        [Column(TypeName = "varchar(500)")]
-        public string Token { get; set; }
     }
 }
